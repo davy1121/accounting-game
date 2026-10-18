@@ -308,6 +308,7 @@
       } else {
         score += v; paintScore(v); showToast(v, c.note);
       recordAnswer(nodeId, c);
+      submitProgress();          // ★ 每做一次选择就提交一次，防止中途退出丢分
       }
     } else {
       showToast(0, '这一段已经计过分了，重选不加分');
@@ -446,6 +447,22 @@
 
   /* ---------- 提交成绩到 Supabase（只提交一次） ---------- */
   var submitted = false;
+  /* ---------- 每次选择后都提交一次（保险） ---------- */
+  var lastSubmitAt = 0;
+  function submitProgress() {
+    const sid = localStorage.getItem('studentId');
+    if (!sid || !window.SCORE_DB) return;
+    const now = Date.now();
+    if (now - lastSubmitAt < 800) return;   // 防抖
+    lastSubmitAt = now;
+    const sxzScore = Number(localStorage.getItem('sxzScore') || 0);
+    const cut = window.__totalCut || 0;
+    const secs = Math.max(0, totalElapsed - cut);
+    SCORE_DB.submitResult(sid, score + sxzScore, secs)
+      .then((r) => { if (!r || !r.ok) console.warn('进度提交失败'); })
+      .catch(() => {});
+  }
+
   function submitOnce() {
     if (submitted) return;
     const sid = localStorage.getItem('studentId');

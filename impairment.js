@@ -17,7 +17,7 @@ const SECTIONS = [
     sum: '减值迹象、可收回金额、资产组、商誉减值',
     tone: '#2D9CFF', toneDark: '#0F6CBF',
     inside: '研究生课程课件，共 59 页',
-    href: '资产减值_CAS8_研究生课程课件.pptx',
+    href: 'cas8-slides.pptx',
     slot: { z: -30, ry: 9,  rx: 4,  ty: -16, fd: 0 },
   },
   {
@@ -25,7 +25,7 @@ const SECTIONS = [
     name: '案例视频',
     sum: '用一家真实公司走一遍完整的减值测试',
     tone: '#9B8AFF', toneDark: '#6B57D6',
-    href: 'video/案例视频.mp4',
+    href: 'case.mp4',
     slot: { z: 46,  ry: 0,  rx: -2, ty: 14,  fd: -2.4 },
   },
   {
@@ -33,7 +33,7 @@ const SECTIONS = [
     name: '趣味游戏',
     sum: '先过三贤者试炼，再进互动影游',
     tone: '#8ED000', toneDark: '#5F8C00',
-    href: '三贤者/index.html',
+    href: 'sxz.html',
     slot: { z: -22, ry: -9, rx: 4,  ty: -8,  fd: -4.6 },
   },
 ];

@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9D%A4%3C/text%3E%3C/svg%3E" />
+<title>三贤者试炼 · 选择你的路</title>
+<link rel="stylesheet" href="sxz.css?v=20261019s" />
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="zc.html">← 返回资产减值</a>
+
+  <!-- ── 选路 ── -->
+    <section class="rules" id="rules">
+      <p class="kicker">游戏介绍</p>
+      <h1>趣味游戏怎么玩</h1>
+      <p class="lede">这里有两个环节，先过试炼拿道具，再进影游做判断。<br/>道具只在影游里能用，而且用过一次就没了。</p>
+
+      <div class="rule-card">
+        <div class="rc-head">
+          <span class="rc-no">一</span>
+          <div>
+            <h2>三贤者试炼</h2>
+            <p class="rc-sub">先选一条路，每条路三道题</p>
+          </div>
+        </div>
+        <ul class="rc-list">
+          <li><b>三条路</b>致知（理论·科目与计量）、力行（实操·范围与测试）、正义（准则·红线与现金流），<b>只能选一条</b></li>
+          <li><b>每题分值</b>判断题 <b>5 分</b>、单选题 <b>5 分</b>、多选题 <b>10 分</b>，合计 <b>20 分</b></li>
+          <li><b>答错不扣分</b>可以点「再试一次」改选，但本题不计分</li>
+          <li><b>得道具</b>三题<b>一次性全对</b>，才能拿到那条路的心</li>
+          <li><b>道具</b>致知之心、力行之心、正义之心，各只能用一次</li>
+        </ul>
+      </div>
+
+      <div class="rule-card">
+        <div class="rc-head">
+          <span class="rc-no">二</span>
+          <div>
+            <h2>互动影游</h2>
+            <p class="rc-sub">二十段视频，十个关键抉择</p>
+          </div>
+        </div>
+        <ul class="rc-list">
+          <li><b>三个选项</b>每个抉择都有三个选项，分三种性质</li>
+          <li class="rc-opt bad"><b>错误选项</b>扣 <b>5 分</b></li>
+          <li class="rc-opt mid"><b>非最优选项</b>加 <b>5 分</b></li>
+          <li class="rc-opt ok"><b>最优选项</b>加 <b>10 分</b></li>
+          <li><b>结算</b>答题结束后，同时得到<b>分数</b>和<b>答题时间</b></li>
+          <li><b>排名</b>先按<b>分数</b>排名，分数相同再按<b>答题时间</b>（用时短的靠前）</li>
+          <li><b>计时</b>从点「开始游戏」起算，全程不停</li>
+        </ul>
+      </div>
+
+      <button class="submit" id="rulesGo" type="button">我明白了，去选路 →</button>
+    </section>
+
+  <section id="choose" class="panel">
+    <p class="kicker">三贤者试炼</p>
+    <h1>选择你的路</h1>
+    <p class="lede">三条路，每条三题：一题单选、一题判断、一题多选。<br/>
+      三题全对，才能得到那条路的心。</p>
+    <div class="paths" id="pathList"></div>
+  </section>
+
+  <!-- ── 答题 ── -->
+  <section id="quiz" class="panel" hidden>
+    <div class="quiz-head">
+      <span class="badge" id="qPath"></span>
+      <span class="qstep" id="qStep"></span>
+      <span class="qscore" id="qScore">得分 0</span>
+    </div>
+    <h2 class="qtitle" id="qTitle"></h2>
+    <p class="qtype" id="qType"></p>
+    <div class="opts" id="qOpts"></div>
+    <button class="submit" id="qSubmit" type="button">确认作答</button>
+    <p class="verdict" id="qVerdict" hidden></p>
+  </section>
+
+  <!-- ── 结果 ── -->
+  <section id="result" class="panel" hidden>
+    <p class="kicker" id="rKicker"></p>
+    <h1 id="rTitle"></h1>
+    <p class="lede" id="rText"></p>
+    <div class="heart" id="rHeart" hidden>
+      <svg viewBox="0 0 100 90" aria-hidden="true"><path d="M50 86S6 58 6 30C6 14 18 4 32 4c8 0 14 4 18 10 4-6 10-10 18-10 14 0 26 10 26 26 0 28-44 56-44 56z"/></svg>
+      <div class="heart-txt">
+        <span id="rHeartName"></span>
+        <p id="rHeartDesc"></p>
+      </div>
+    </div>
+    <div class="heart-use" id="rHeartUse" hidden>
+      <p class="hu-t">这件道具在影游里怎么用</p>
+      <p class="hu-d" id="rHeartUseText"></p>
+      <p class="hu-n">一次性 · 用掉就没了 · 折算约 +5 分</p>
+    </div>
+    <div class="acts">
+      <a class="submit ghost" id="rGo" href="game.html">进入影游 →</a>
+    </div>
+  </section>
+</div>
+<script src="sxz.js?v=20261019s"></script>
+</body>
+</html>

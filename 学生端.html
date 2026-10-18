@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<title>会计准则妙妙屋 · 学生端</title>
+<link rel="stylesheet" href="三贤者/三贤者.css?v=20261019s" />
+<style>
+  body { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+  .login { width: 100%; max-width: 420px; background: #fff; border: 2.5px solid #101418;
+           border-radius: 24px; box-shadow: 6px 6px 0 #101418; padding: 34px 28px 30px; }
+  .login h1 { font-size: 27px; margin: 0 0 8px; }
+  .login .sub { font-size: 14px; color: #6B7683; margin: 0 0 26px; line-height: 1.7; }
+  .login label { display: block; font-size: 13px; font-weight: 700; color: #101418; margin-bottom: 9px; }
+  .login input {
+    width: 100%; box-sizing: border-box; padding: 15px 18px; font-size: 19px; font-family: inherit;
+    border: 2px solid #E3E8EE; border-radius: 14px; outline: none; transition: border-color .15s, box-shadow .15s;
+    letter-spacing: .04em; -webkit-appearance: none;
+  }
+  .login input:focus { border-color: #101418; box-shadow: 3px 3px 0 #101418; }
+  .login button {
+    width: 100%; margin-top: 20px; padding: 16px; font-size: 17px; font-weight: 800; font-family: inherit;
+    color: #fff; background: #101418; border: 0; border-radius: 999px; cursor: pointer;
+    transition: transform .15s, background .15s;
+  }
+  .login button:hover { transform: translateY(-2px); background: #0F6CBF; }
+  .login button:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+  .err { margin: 14px 0 0; font-size: 13.5px; color: #C21E63; min-height: 20px; }
+  .who { margin-top: 16px; font-size: 13px; color: #6B7683; text-align: center; }
+  .who b { color: #101418; }
+</style>
+</head>
+<body>
+<form class="login" id="f">
+  <p style="font-size:12px;letter-spacing:.16em;color:#6B7683;margin:0 0 10px">会计准则妙妙屋</p>
+  <h1>输入你的学号</h1>
+  <p class="sub">学号只用于统计成绩排名，不会用于其他用途。<br/>输完直接进入游戏。</p>
+  <label for="sid">学号</label>
+  <input id="sid" name="sid" type="text" inputmode="numeric" autocomplete="off"
+         placeholder="例如 20230101" maxlength="20" required />
+  <button type="submit" id="go">开始游戏 →</button>
+  <p class="err" id="err"></p>
+  <p class="who" id="who" hidden></p>
+</form>
+<script>
+(function () {
+  const saved = localStorage.getItem('studentId');
+  const f = document.getElementById('f'), sid = document.getElementById('sid'), err = document.getElementById('err');
+  if (saved) {
+    document.getElementById('who').hidden = false;
+    document.getElementById('who').innerHTML = '上次用的学号：<b>' + saved + '</b>（改的话直接改上面的输入框）';
+    sid.value = saved;
+  }
+  f.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const v = sid.value.trim();
+    if (!/^\d{4,20}$/.test(v)) { err.textContent = '学号应该是 4-20 位数字'; return; }
+    err.textContent = '';
+    localStorage.setItem('studentId', v);
+    localStorage.removeItem('sxz');          // 每次新开都从三贤者开始
+    sessionStorage.removeItem('heartUsed');
+    location.href = '三贤者/index.html?sid=' + encodeURIComponent(v);
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1060 @@
+/* ============================================================
+   会计准则妙妙屋 · 多巴胺版
+   设计分析：课程材料目录页，用户是课堂上要看投影的学生和老师。
+   投影仪对比度差、观看距离远 → 「看得清」优先于「有品味」。
+
+   旋钮：DESIGN_VARIANCE 8 / MOTION_INTENSITY 7 / VISUAL_DENSITY 4
+   字体：圆体(展示层) + 苹方(数据/标签)，两族都是无衬线
+   配色：7 色相等明度同彩度，颜色即准则身份（真实导航信息）
+   ============================================================ */
+
+:root {
+  /* ---- 中性场：只用一套，不冷暖混用（§4.2） ---- */
+  --场: #FAFAFA;
+  --面: #FFFFFF;
+  --墨: #14161A;          /* 近黑，非纯黑（§9.A） */
+  --墨弱: #5B6470;
+  --描: #0B0D10;          /* 贴纸轮廓，两模式都保持深色 */
+
+  /* ---- 七个准则色：等明度等彩度，成体系 ---- */
+  --c-jb: #9B8AFF;        /* 基本准则     薰衣草 */
+  --c-ch: #8ED000;        /* 存货         青柠 */
+  --c-tz: #FFB020;        /* 投资性房地产 琥珀 */
+  --c-wx: #00C2A8;        /* 无形资产     青绿 */
+  --c-jz: #FF3D8B;        /* 资产减值     品红（唯一开门，最热） */
+  --c-jr: #2D9CFF;        /* 金融工具     天蓝 */
+  --c-gj: #FF6B35;        /* 公允价值     橘 */
+
+  /* ---- 形状（§4.4 形状锁定）：面用 20px，可点的东西一律全圆角 ---- */
+  --r: 20px;
+
+  --影偏移: 5px;
+  --ease: cubic-bezier(.16, 1, .3, 1);
+
+  --z-dialog: 40;
+  --z-transition: 90;
+
+  color-scheme: light dark;
+}
+
+* { box-sizing: border-box; }
+
+/* hidden 属性必须能压住 display:block 这类样式，
+   否则「隐藏」的元素照样占位（影游的空视频框就踩过这个坑） */
+[hidden] { display: none !important; }
+
+body {
+  margin: 0;
+  background: var(--场);
+  color: var(--墨);
+  font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
+    -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 展示层字体：圆体。圆头笔画本身就是多巴胺语汇 */
+.round { font-family: "Yuanti SC", "YuanTi SC", "Hiragino Maru Gothic ProN",
+  "PingFang SC", "Microsoft YaHei", sans-serif; }
+
+.page { max-width: 1180px; margin: 0 auto; padding: 88px 32px 76px; }
+
+/* ================= 抬头 ================= */
+.masthead { margin: 0 0 52px; }
+
+.masthead h1 { margin: 0; font-weight: 700; }
+
+.m-line {
+  display: block;
+  font-size: clamp(44px, 8.2vw, 86px);
+  line-height: 1.06;
+  letter-spacing: .02em;
+  font-weight: 700;
+}
+
+/* 「妙妙屋」压在一条荧光笔痕上。
+   用「字的处理方式」做视觉，而不是给标题里某个词换个颜色（§4.1 强调规则） */
+.m-mark {
+  display: inline-block;
+  background: var(--c-ch);
+  padding: .02em .14em .08em;
+  /* 全站圆角规则：卡片 20px（--r）、交互药丸 999px、
+     这里的荧光笔痕 10px（贴合文字，比卡片更收）。
+     三种都有明确用途，不是随手写死的（§4.4 形状一致性锁） */
+  border-radius: 10px;
+  transform: rotate(-1.4deg);
+  box-shadow: 4px 4px 0 rgba(20, 22, 26, .16);
+}
+
+/* ================= 七格 bento ================= */
+/* 用 .scene-plane.bento 提高优先级：.scene-plane 里的 --cols:3 在文件后面，
+   同优先级会覆盖掉这里的 12，首页会变成 3 列（实测踩过） */
+.scene-plane.bento {
+  --cols: 12;      /* 首页七格 */
+  --gap: 16px;
+}
+
+/* 跨度按内容定：名字长、摘要长的格子就宽 */
+.span-5  { grid-column: span 5; }
+.span-7  { grid-column: span 7; }
+.span-8  { grid-column: span 8; }
+.span-6  { grid-column: span 6; }
+.span-4  { grid-column: span 4; }
+.span-12 { grid-column: span 12; }
+
+/* ---- 贴纸 ---- */
+.tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 22px 24px;
+  min-height: 148px;
+
+  font: inherit;
+  text-align: left;
+  color: #14161A;                       /* 彩底上恒用深字，两模式都过 AA */
+  background: var(--tone);
+  border: 2px solid var(--描);
+  border-radius: var(--r);
+  /* 硬边实心投影，颜色取自该格自己的深色（不是通用灰影） */
+  box-shadow: var(--影偏移) var(--影偏移) 0 var(--tone-dark);
+
+  cursor: pointer;
+  transition: transform .3s var(--ease);
+  animation: pop .42s var(--ease) backwards;
+}
+
+@keyframes pop {
+  from { opacity: 0; transform: translateY(16px) scale(.96); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* 由幕布「凝」成形：从放大状态收回原位 */
+@keyframes condense {
+  from { opacity: 0; transform: scale(1.9); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes zoom-in {
+  from { opacity: 0; transform: scale(1.16); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* §6.A 只动 transform：抬起与按压都不改 box-shadow */
+.tile:hover, .tile:focus-visible { transform: translate(-3px, -3px) scale(1.012); }
+.tile:active { transform: translate(2px, 2px) scale(.995); }
+
+.tile:focus-visible { outline: 3px solid var(--描); outline-offset: 3px; }
+
+/* 顶行：圆形号码 + 名称 */
+.tile-head { display: flex; align-items: center; gap: 12px; }
+
+.tile-no {
+  flex: none;
+  width: 44px; height: 44px;
+  display: grid; place-items: center;
+  font-size: 19px; font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: #FFF;
+  background: var(--描);
+  border-radius: 999px;
+}
+
+.tile-name {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: .01em;
+  line-height: 1.2;
+}
+
+.tile-sum {
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: rgba(20, 22, 26, .78);
+}
+
+/* 主格专用：点进去之前先告诉你里面有啥 */
+.tile-inside {
+  width: fit-content;
+  margin: 0;
+  font-size: 13.5px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 2px solid var(--描);
+  background: rgba(255, 255, 255, .62);
+}
+
+/* 底部状态胶囊，推到最下 */
+.tile-state {
+  margin-top: auto;
+  align-self: flex-start;
+  font: inherit;                     /* 它是 <button>，默认字体会不一致 */
+  font-size: 13px;
+  font-weight: 700;
+  padding: 5px 14px;
+  border-radius: 999px;
+  border: 2px solid var(--描);
+  background: rgba(255, 255, 255, .55);
+  color: inherit;
+  /* 平时只是状态标签，不可点；卡片放大后才变成动作按钮。
+     少了这行，没放大时点药丸也会直接执行动作。 */
+  pointer-events: none;
+  transform: scale(1);
+  transform-origin: center;
+  /* 只动 transform（§6.A）。background-color 是静态状态，不需要过渡 */
+  transition: transform .25s var(--ease);
+}
+
+/* 放大后，这个药丸才变成「动作按钮」，
+   它也是放大状态下唯一「不退出」的点击目标。 */
+.slot.is-focus .tile-state {
+  pointer-events: auto;
+  cursor: pointer;
+  /* 放大后按钮要更醒目，也更好点。
+     用 scale 而不是改 padding/font-size，后两者是布局属性，
+     动它们就违反了「只动 transform 和 opacity」（§6.A）。 */
+  transform: scale(1.2);
+  transform-origin: center;
+}
+.slot.is-focus .tile-state:hover  { transform: scale(1.26); }
+.slot.is-focus .tile-state:active { transform: scale(1.12); }
+.tile-state:focus-visible { outline: 3px solid var(--描); outline-offset: 3px; }
+
+.tile-state.is-ok { background: var(--描); color: #FFF; }
+
+/* ---- 全宽主格：唯一能进的「资产减值」 ---- */
+.tile.is-feature {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  column-gap: 40px;
+  row-gap: 12px;
+  min-height: 0;
+  padding: 28px 32px;
+}
+
+.tile.is-feature .tile-main { grid-column: 1; grid-row: 1 / span 2; min-width: 0; }
+.tile.is-feature .tile-inside { grid-column: 2; grid-row: 1; justify-self: end; }
+.tile.is-feature .tile-name { font-size: clamp(30px, 3.6vw, 44px); }
+.tile.is-feature .tile-sum { font-size: 16px; max-width: 34em; margin-top: 10px; }
+.tile.is-feature .tile-state { grid-column: 2; grid-row: 2; justify-self: end; margin-top: 0; }
+
+/* ================= 页脚批注 ================= */
+.colophon {
+  margin: 40px 0 0;
+  font-size: 15px;
+  line-height: 1.85;
+  color: var(--墨弱);
+}
+
+/* ================= 详情页 ================= */
+.back {
+  display: inline-block;
+  margin-bottom: 40px;
+  padding: 9px 20px;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--墨);
+  text-decoration: none;
+  background: var(--面);
+  border: 2px solid var(--描);
+  border-radius: 999px;
+  box-shadow: 3px 3px 0 var(--描);
+  transition: transform .3s var(--ease);
+}
+.back:hover { transform: translate(-2px, -2px); }
+.back:active { transform: translate(2px, 2px); }
+.back:focus-visible { outline: 3px solid var(--描); outline-offset: 3px; }
+
+.detail-head { margin-bottom: 44px; }
+
+/* 入场顺序：号码 → 标题 → 导语 → 三格，逐级落位 */
+
+.detail-head .hero-no {
+  display: inline-grid; place-items: center;
+  width: 56px; height: 56px;
+  margin-bottom: 16px;
+  font-size: 24px; font-weight: 700;
+  color: #FFF; background: var(--描);
+  border-radius: 999px;
+}
+
+.detail-head h1 {
+  margin: 0 0 16px;
+  font-size: clamp(38px, 6vw, 62px);
+  font-weight: 700;
+  letter-spacing: .01em;
+  line-height: 1.1;
+}
+
+.detail-head .lede {
+  margin: 0;
+  max-width: 30em;
+  font-size: 16.5px;
+  line-height: 1.8;
+  color: var(--墨弱);
+}
+
+
+/* ================= 敬请期待：贴纸弹窗 ================= */
+.cs { position: fixed; inset: 0; z-index: var(--z-dialog);
+  display: grid; place-items: center; padding: 24px; }
+.cs[hidden] { display: none; }
+
+.cs-mask { position: absolute; inset: 0; background: rgba(20, 22, 26, .48);
+  opacity: 0; transition: opacity .22s ease; }
+.cs.show .cs-mask { opacity: 1; }
+
+.cs-card {
+  position: relative;
+  width: min(430px, 100%);
+  padding: 30px 30px 26px;
+  background: var(--面);
+  border: 2px solid var(--描);
+  border-radius: var(--r);
+  box-shadow: 8px 8px 0 var(--tone-dark, var(--描));
+  transform: translateY(14px) scale(.95);
+  opacity: 0;
+  transition: transform .34s var(--ease), opacity .24s ease;
+}
+.cs.show .cs-card { transform: none; opacity: 1; }
+
+.cs-kicker {
+  margin: 0 0 6px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  color: var(--tone-dark, #5B6470);
+}
+
+.cs-title { margin: 0 0 12px; font-size: 27px; font-weight: 700; letter-spacing: .01em; }
+
+.cs-note { margin: 0 0 22px; font-size: 15px; line-height: 1.8; color: var(--墨弱); }
+
+.cs-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+
+.cs-btn {
+  font: inherit;
+  font-size: 15px; font-weight: 700;
+  padding: 10px 22px;
+  color: var(--墨);
+  background: var(--面);
+  border: 2px solid var(--描);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: transform .3s var(--ease);
+}
+.cs-btn:hover { transform: translate(-2px, -2px); }
+.cs-btn:active { transform: translate(2px, 2px); }
+.cs-btn:focus-visible { outline: 3px solid var(--描); outline-offset: 3px; }
+
+.cs-btn.is-primary {
+  color: #14161A;
+  background: var(--tone, #FFD23F);
+  box-shadow: 3px 3px 0 var(--tone-dark, var(--描));
+}
+
+/* ================= 页面转场 ================= */
+/* 点哪一格，就用那一格自己的颜色灌满屏幕，再展开成下一页 */
+.pt-fly { position: fixed; z-index: var(--z-transition); pointer-events: none;
+  transform-origin: 0 0; will-change: transform; }
+
+.pt-curtain { display: none; }
+
+html.is-entering .pt-curtain {
+  display: block; position: fixed; inset: 0; z-index: var(--z-transition);
+  background: var(--pt-fill, #14161A);
+  transform-origin: 0 0; will-change: transform, opacity;
+  /* 幕布纯装饰。不加这行的话，淡出期间（opacity 0 也仍然可命中）
+     会把整页的点击都吃掉，到达后约 0.9 秒内什么都点不动 */
+  pointer-events: none;
+}
+
+html.is-entering .pt-curtain.is-leaving {
+  animation: pt-veil-out .62s cubic-bezier(.16, 1, .3, 1) forwards;
+}
+
+/* 到达 = 幕布「退回」+ 新页面「落定」。
+   幕布轻微放大淡出（镜头拉远），页面从 1.05 倍收到原位（世界落定），
+   两个动作方向一致、时间重叠，接成一个连续的运动。
+   用 :not([data-pt-shrink]) 排除「返回首页」，那一路幕布要收缩到具体格子，
+   页面若同时缩放，格子位置会飘、对不准。 */
+html.is-entering:not([data-pt-shrink="1"]) .page {
+  animation: page-settle .78s cubic-bezier(.16, 1, .3, 1) both;
+}
+
+@keyframes page-settle {
+  from { opacity: 0; transform: scale(1.05); }
+  50%  { opacity: 1; }
+  to   { opacity: 1; transform: none; }
+}
+
+html.is-entering[data-pt-shrink="1"] .pt-curtain.is-leaving {
+  animation-name: pt-veil-shrink;
+  animation-duration: .48s;
+}
+
+/* 穿幕：幕布边放大边淡出，读到的是「镜头穿过这一格颜色」 */
+@keyframes pt-veil-out {
+  from { opacity: 1; transform: scale(1); }
+  to   { opacity: 0; transform: scale(1.14); }
+}
+
+@keyframes pt-veil-shrink {
+  from { opacity: 1; border-radius: 0; transform: translate(0, 0) scale(1, 1); }
+  55%  { opacity: 1; }
+  to   { opacity: 0; border-radius: var(--r);
+         transform: translate(var(--pt-tx), var(--pt-ty))
+                    scale(var(--pt-sx), var(--pt-sy)); }
+}
+
+/* ================= 小屏：§7 要求 4-10 级方差降到严格单列 ================= */
+@media (max-width: 768px) {
+  .page { padding: 48px 18px 56px; }
+  .masthead { margin-bottom: 34px; }
+
+  .bento { grid-template-columns: 1fr; }
+
+  .span-5, .span-7, .span-8, .span-6, .span-4, .span-12 { grid-column: span 1; }
+
+  .tile { min-height: 0; padding: 18px; }
+  .tile-name { font-size: 22px; }
+
+  /* 主格在小屏收回单栏 */
+  .tile.is-feature { grid-template-columns: 1fr; row-gap: 12px; padding: 20px; }
+  .tile.is-feature .tile-main { grid-column: 1; grid-row: auto; }
+  .tile.is-feature .tile-inside,
+  .tile.is-feature .tile-state { grid-column: 1; grid-row: auto; justify-self: start; }
+}
+
+/* ============================================================
+   背景：色晕 + 颗粒
+   底色平铺会显得是一块死白。加两层，但都只落在空白区，
+   中间那条主视觉（标题 + 七格）留给内容自己，不抢戏。
+
+   §6.E 规定颗粒只能挂在固定的 pointer-events:none 伪元素上，
+   不能挂在滚动容器上（会持续重绘，拖垮移动端帧率）。
+   §9.F 禁止只为「显得设计了」而画的网格线，所以不用网格底纹。
+   ============================================================ */
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;      /* §6.E 硬性要求 */
+}
+
+/* 第一层：极光。
+   参考 21st.dev 的 Aurora / AuroraBackground 两个组件，
+   但它们是 React + WebGL，这里用纯 CSS 重写同样的视觉原理：
+   不是圆斑，而是几条被拉得很扁的斜向色带，叠在页面上半部。
+   色相仍然取自七个格子，所以颜色是从内容里长出来的。 */
+body::before {
+  inset: -10%;                 /* 留出漂移余量，移动时不会露边 */
+  background-image:
+    radial-gradient(118% 32% at 16% -6%,  rgba(142, 208,   0, .42), transparent 64%),
+    radial-gradient(108% 28% at 74% -2%,  rgba( 45, 156, 255, .36), transparent 62%),
+    radial-gradient(126% 30% at 44%  6%,  rgba(255,  61, 139, .28), transparent 64%),
+    radial-gradient(100% 26% at  4% 24%,  rgba(155, 138, 255, .25), transparent 62%),
+    radial-gradient(112% 32% at 92% 30%,  rgba(255, 176,  32, .22), transparent 64%);
+  animation: aurora-drift 46s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+/* 极慢的漂移：46 秒一个来回，幅度只有 1.5%，
+   读到的是「这页是活的」，而不是「有东西在动」 */
+@keyframes aurora-drift {
+  from { transform: translate3d(-1.5%, -1.0%, 0) scale(1.02); }
+  to   { transform: translate3d( 1.5%,  1.5%, 0) scale(1.06); }
+}
+
+/* 第二层：颗粒。§6.E 规定只能挂在固定的 pointer-events:none 伪元素上 */
+body::after {
+  opacity: .06;
+  background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27160%27%20height%3D%27160%27%3E%3Cfilter%20id%3D%27n%27%3E%3CfeTurbulence%20type%3D%27fractalNoise%27%20baseFrequency%3D%270.85%27%20numOctaves%3D%273%27%20stitchTiles%3D%27stitch%27%2F%3E%3C%2Ffilter%3E%3Crect%20width%3D%27160%27%20height%3D%27160%27%20filter%3D%27url(%23n)%27%2F%3E%3C%2Fsvg%3E");
+  background-size: 160px 160px;
+}
+
+
+.page { position: relative; z-index: 1; }
+
+/* 暗色：同一套色晕，但要提亮才看得见 */
+@media (prefers-color-scheme: dark) {
+  /* 暗色：同一组极光带，提亮才看得见 */
+  body::before {
+    background-image:
+      radial-gradient(118% 32% at 16% -6%,  rgba(142, 208,   0, .28), transparent 64%),
+      radial-gradient(108% 28% at 74% -2%,  rgba( 45, 156, 255, .28), transparent 62%),
+      radial-gradient(126% 30% at 44%  6%,  rgba(255,  61, 139, .25), transparent 64%),
+      radial-gradient(100% 26% at  4% 24%,  rgba(155, 138, 255, .22), transparent 62%),
+      radial-gradient(112% 32% at 92% 30%,  rgba(255, 176,  32, .19), transparent 64%);
+  }
+  body::after { opacity: .08; }
+}
+
+/* ================= §6.C / §8 暗色模式 ================= */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --场: #14161A;
+    --面: #1E2128;
+    --墨: #F2F3F5;
+    --墨弱: #9AA3B0;
+    /* 描边仍是深色：贴纸轮廓要压在彩底上，不能跟着页面翻白 */
+    --描: #0B0D10;
+  }
+  .tile-sum { color: rgba(20, 22, 26, .80); }
+  .tile-state { background: rgba(255, 255, 255, .62); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+  body::before { animation: none !important; }
+  html.is-entering .pt-curtain { display: none !important; }
+}
+
+/* ============================================================
+   互动影游
+   ============================================================ */
+.game { max-width: 940px; }
+
+.game-hud {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 14px;
+}
+
+.game-hud .badge {
+  display: inline-block;
+  padding: 5px 15px;
+  font-size: 14px; font-weight: 700;
+  color: #14161A;
+  background: var(--tone, #FF3D8B);
+  border: 2px solid var(--描);
+  border-radius: 999px;
+  box-shadow: 3px 3px 0 var(--描);
+}
+
+.game-step { font-size: 14px; color: var(--墨弱); }
+
+/* 分数徽章：推到最右，扣分时变红 */
+.game-hud .game-score {
+  margin-left: auto;
+  display: inline-block;
+  padding: 5px 15px;
+  font-size: 14px; font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: #14161A;
+  background: rgba(255, 255, 255, .72);
+  border: 2px solid var(--描);
+  border-radius: 999px;
+  transition: transform .22s var(--ease), background-color .22s ease;
+}
+.game-hud .game-score.is-down { background: #FFD9E4; }
+.game-hud .game-score.is-bump { transform: scale(1.14); }
+
+.game-title {
+  margin: 0 0 22px;
+  font-size: clamp(28px, 4.4vw, 44px);
+  font-weight: 700;
+  letter-spacing: .01em;
+  line-height: 1.2;
+}
+
+/* 舞台：16:9。有视频放视频，没视频放文字 */
+.stage {
+  position: relative;
+  border: 2px solid var(--描);
+  border-radius: var(--r);
+  background: var(--面);
+  box-shadow: 7px 7px 0 var(--tone, #FF3D8B);
+  overflow: hidden;
+  margin-bottom: 22px;
+}
+
+.stage video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #0B0D10;
+  object-fit: contain;
+}
+
+.stage-text {
+  padding: 30px 32px;
+  font-size: 17px;
+  line-height: 1.95;
+  white-space: pre-wrap;      /* 剧本里的换行原样保留 */
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.stage-play {
+  position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  font: inherit; font-size: 17px; font-weight: 700;
+  padding: 14px 30px;
+  color: #14161A; background: var(--tone, #FF3D8B);
+  border: 2px solid var(--描); border-radius: 999px;
+  box-shadow: 4px 4px 0 var(--描);
+  cursor: pointer;
+  transition: transform .25s var(--ease);
+}
+.stage-play:hover { transform: translate(-50%, -50%) translate(-2px, -2px); }
+.stage-play:active { transform: translate(-50%, -50%) translate(2px, 2px); }
+
+.game-prompt {
+  margin: 0 0 16px;
+  font-size: 16px; font-weight: 700;
+  color: var(--墨);
+}
+.game-prompt:empty { display: none; }
+
+/* 选项 */
+.choices { display: grid; gap: 12px; margin-bottom: 26px; }
+
+/* 视频播完后，题目逐个滑入。只动 transform 和 opacity（§6.A） */
+.choices.is-in .choice { animation: q-in .34s var(--ease) backwards; }
+.choices.is-in .choice:nth-child(2) { animation-delay: .05s; }
+.choices.is-in .choice:nth-child(3) { animation-delay: .1s; }
+.choices.is-in .choice:nth-child(4) { animation-delay: .15s; }
+@keyframes q-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.choice {
+  display: flex; align-items: center; gap: 14px;
+  width: 100%; text-align: left;
+  font: inherit; color: inherit;
+  padding: 16px 20px;
+  background: var(--面);
+  border: 2px solid var(--描);
+  border-radius: var(--r);
+  box-shadow: 4px 4px 0 var(--描);
+  cursor: pointer;
+  transition: transform .25s var(--ease);
+}
+.choice:hover, .choice:focus-visible { transform: translate(-3px, -3px); outline: none; }
+.choice:active { transform: translate(2px, 2px); }
+.choice:focus-visible { box-shadow: 4px 4px 0 var(--描), 0 0 0 3px var(--tone, #FF3D8B); }
+
+.choice-key {
+  flex: none;
+  width: 34px; height: 34px;
+  display: grid; place-items: center;
+  font-size: 15px; font-weight: 700; color: #FFF;
+  background: var(--描);
+  border-radius: 999px;
+}
+
+.choice-main { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.choice-label { font-size: 18px; font-weight: 700; }
+.choice-note { font-size: 14px; color: var(--墨弱); }
+
+/* 底部小按钮 */
+.game-foot { display: flex; flex-wrap: wrap; gap: 10px; }
+
+.mini {
+  font: inherit; font-size: 14px; font-weight: 700;
+  padding: 8px 18px;
+  color: var(--墨); background: var(--面);
+  border: 2px solid var(--描); border-radius: 999px;
+  box-shadow: 3px 3px 0 var(--描);
+  cursor: pointer;
+  transition: transform .25s var(--ease);
+}
+.mini:hover { transform: translate(-2px, -2px); }
+.mini:active { transform: translate(2px, 2px); }
+.mini:focus-visible { outline: 3px solid var(--描); outline-offset: 3px; }
+
+@media (max-width: 768px) {
+  .stage-text { padding: 22px 18px; font-size: 16px; }
+  .choice { padding: 14px 16px; }
+  .choice-label { font-size: 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .choice:hover, .choice:active,
+  .mini:hover, .mini:active,
+  .stage-play:hover, .stage-play:active { transform: none; }
+}
+
+/* ============================================================
+   3D 悬浮卡片（首页七格 + 详情页三格共用）
+   §5 要求 glassmorphism 不能只用 backdrop-blur，必须加内描边和内阴影；
+   §6.A 要求只动 transform / opacity。
+
+   ★ 关键实现决定：不给 .scene-plane 开 transform-style: preserve-3d。
+     实测 preserve-3d 会让 Chrome 的命中测试失效：卡片看得见却点不到
+     （elementFromPoint 返回的是父级容器）。
+     改成每个 .slot 自带 perspective，卡片照样有纵深，父级保持平的，
+     点击就恢复正常。
+   ============================================================ */
+.scene {
+  perspective: 1500px;
+  perspective-origin: 50% 40%;
+  margin-bottom: 18px;
+}
+
+.scene-plane {
+  --cols: 3;          /* 详情页三格 */
+  --gap: 26px;
+  display: grid;
+  /* 必须用 minmax(0,1fr)：1fr 实为 minmax(auto,1fr)，auto 最小值会被内容
+     撑开，列宽会变得参差不齐（实测 12 列被撑成 210/210/210/0/0/0/0/9.8/47…）*/
+  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+  gap: var(--gap);
+  will-change: transform;
+}
+
+/* 放大时场景要「转正」，给它一个过渡，别硬跳 */
+.scene.is-focused .scene-plane { transition: transform .5s var(--ease); }
+
+/* slot：给卡片提供透视，并承担深度位移（JS 写入） */
+.slot {
+  perspective: 900px;
+  perspective-origin: 50% 50%;
+  transition: transform .5s var(--ease), opacity .45s ease;
+}
+
+/* 只有详情页的格子持续漂浮。首页是 7 格内容网格，
+   七张卡一起飘既费电又干扰阅读（§5 动效必须有理由）。 */
+.scene.is-floating .slot {
+  animation: bob3d 9s ease-in-out infinite;
+  animation-delay: var(--fd, 0s);
+}
+
+@keyframes bob3d {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-9px); }
+}
+
+/* 变暗：放在卡片自己身上，并关掉 backdrop-filter。
+   祖先 opacity<1 时 backdrop-filter 会采样到空的离屏缓冲，
+   卡片会糊成一条灰带（实测踩过）。 */
+.slot.is-dim .card3d {
+  opacity: .3;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  pointer-events: none;
+}
+
+/* ---- 3D 摆位：两页共用 ---- */
+.card3d {
+  width: 100%;
+  transform: translate3d(0, var(--ty, 0px), var(--z, 0px))
+             rotateY(var(--ry, 0deg)) rotateX(var(--rx, 0deg));
+  transition: transform .62s var(--ease);
+  cursor: pointer;
+}
+
+.card3d {
+  /* 悬停的力度按页面给：首页是 12 列宽窄不一的格子，
+     整行的「资产减值」若也放大 10% 会胀出 100 多像素、盖住邻卡，
+     所以首页克制、详情页三张小卡才放得开。 */
+  --hover-z: 12px;
+  --hover-scale: 1.012;
+}
+
+.card3d:hover {
+  position: relative;
+  z-index: 2;                      /* 抬起来的那张要压在邻卡之上 */
+  /* 抬高 + 沿 Z 推近 + 额外缩放。沿 Z 推近本身也会放大
+     （透视 900/(900-Z)），三者叠起来才有明显手感。 */
+  transform: translate3d(0, calc(var(--ty, 0px) + var(--lift, -8px)),
+                            calc(var(--z, 0px) + var(--hover-z)))
+             rotateY(var(--ry, 0deg)) rotateX(var(--rx, 0deg)) scale(var(--hover-scale));
+}
+.card3d:active {
+  transform: translate3d(0, calc(var(--ty, 0px) + 3px), calc(var(--z, 0px) - 12px))
+             rotateY(var(--ry, 0deg)) rotateX(var(--rx, 0deg)) scale(0.99);
+}
+
+/* 悬停时整张卡提亮一层，让反馈一眼可见。
+   只用 opacity（§6.A）；白色叠层在内容之下，字不会被冲淡。 */
+.card3d::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: #FFF;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .22s ease;
+}
+.card3d:hover::before { opacity: .13; }
+
+/* 详情页只有三张小卡，空间富裕，悬停可以放开做 */
+.card3d--glass { --hover-z: 40px; --hover-scale: 1.05; }
+
+/* 玻璃卡再亮一点，透光感更强 */
+.card3d--glass:hover::before { opacity: .18; }
+.card3d:focus-visible { outline: 3px solid var(--描); outline-offset: 4px; }
+
+/* 放大：默认推到最前。JS 会写更精确的内联 transform（含居中位移），内联优先 */
+.slot.is-focus { position: relative; z-index: 3; }
+.slot.is-focus .card3d {
+  transform: translate3d(0, 0, 330px) rotateY(0deg) rotateX(0deg) scale(1.03);
+}
+
+/* ---- 玻璃外观：只有详情页三格用 ---- */
+.card3d--glass {
+  min-height: 190px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 22px 24px;
+
+  font: inherit;
+  text-align: left;
+  color: #14161A;
+  animation: none;            /* 不继承 .tile 的 pop，入场由「页面落定」统一负责 */
+
+  background:
+    linear-gradient(148deg,
+      rgba(255, 255, 255, .46) 0%,
+      rgba(255, 255, 255, .06) 44%,
+      rgba(255, 255, 255, .26) 100%),
+    var(--tone-glass);
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  border: 2px solid var(--描);
+  border-radius: var(--r);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .68),
+    inset 0 -1px 0 rgba(255, 255, 255, .22),
+    7px 7px 0 var(--tone-dark);
+}
+
+/* 操作提示。放大时必须淡出，否则会和放大的卡片叠在一起 */
+.scene-hint {
+  margin: 0 0 34px;
+  font-size: 14px;
+  color: var(--墨弱);
+  transition: opacity .3s ease;
+}
+.scene-hint.is-hidden { opacity: 0; }
+
+/* 触摸设备上动作按钮必须够大：手指按 35px 很容易点空，
+   而点空就退出界面了（动作按钮是手机上唯一的入口）。
+   44px 是通行下限。 */
+@media (hover: none), (max-width: 768px) {
+  .slot.is-focus .tile-state {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    padding: 0 22px;
+  }
+}
+
+/* ============================================================
+   矮窗口紧凑模式（投影仪 / 笔记本）
+   实测 1280×720 时原版只能完整看到 4/7 张卡，
+   而小组汇报多半在这种投影仪上放，七条准则看不全是硬伤。
+   只在「宽够 + 高不够」时启用，大屏保持原来的呼吸感。
+   ============================================================ */
+@media (min-width: 769px) and (max-height: 1020px) {
+  .page { padding-top: 44px; padding-bottom: 44px; }
+  .masthead { margin-bottom: 22px; }
+  .m-line { font-size: clamp(32px, 4.2vw, 54px); }
+
+  .scene { margin-bottom: 10px; }
+  .scene-plane.bento { --gap: 11px; }
+
+  .tile { padding: 11px 18px; gap: 6px; min-height: 0; }
+  .tile-no { width: 32px; height: 32px; font-size: 15px; }
+  .tile-name { font-size: 19px; }
+  .tile-sum { font-size: 13px; line-height: 1.45; }
+  .tile-state { font-size: 12px; padding: 4px 12px; }
+  .tile-inside { font-size: 12px; padding: 4px 12px; }
+  .tile.is-feature { padding: 15px 22px; column-gap: 26px; row-gap: 8px; }
+
+  .scene-hint { font-size: 13px; margin-bottom: 16px; }
+  .colophon { margin-top: 22px; font-size: 14px; line-height: 1.6; }
+}
+
+/* ---- 小屏 / 触屏：退回严格单列，不做 3D（§7 移动端覆盖）---- */
+@media (max-width: 768px), (hover: none) {
+  .scene { perspective: none; }
+  .scene-plane { grid-template-columns: 1fr; gap: 16px; transform: none !important; }
+  .slot { perspective: none; animation: none; }
+  .slot.is-dim { opacity: 1; }
+  .card3d { transform: none !important; min-height: 0; }
+  .slot.is-focus .card3d { transform: none !important; }
+  .scene-hint { display: none; }
+  .scene-veil { display: none; }
+}
+
+/* ---- §6.B 减弱动效：停掉漂浮和视差 ---- */
+@media (prefers-reduced-motion: reduce) {
+  .slot { animation: none !important; }
+  .scene-plane { transform: none !important; }
+  .slot, .card3d { transition: none !important; }
+  .card3d:hover, .card3d:active { transform: none !important; }
+}
+
+/* ---- §5 要求：不支持透明时给实心回退 ---- */
+@media (prefers-reduced-transparency: reduce) {
+  .card3d {
+    background: var(--tone);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, .5),
+      7px 7px 0 var(--tone-dark);
+  }
+}
+
+/* ---- 暗色：场更暗，玻璃若还是同样透明度，深字对比度会掉，
+        所以把填充提到更实（下面实测验证过）---- */
+@media (prefers-color-scheme: dark) {
+  .card3d {
+    background:
+      linear-gradient(148deg,
+        rgba(255, 255, 255, .22) 0%,
+        rgba(255, 255, 255, .03) 44%,
+        rgba(255, 255, 255, .12) 100%),
+      var(--tone-solid);
+  }
+}
+
+/* ── 剧情简介（视频播完后出现） ── */
+.game-summary {
+  margin: 0 0 18px;
+  padding: 16px 20px;
+  border-left: 3px solid var(--accent, #2D9CFF);
+  background: #F2F5F9;
+  border-radius: 0 10px 10px 0;
+  font-size: 15px;
+  line-height: 1.85;
+  color: #2B3441;
+}
+.game-summary[hidden] { display: none; }
+
+/* ── 视频压矮，保证简介和选项一屏可见 ── */
+.game-stage video,
+#video {
+  max-height: 46vh;          /* 原本接近满屏，压到不到半屏 */
+  width: 100%;
+  object-fit: contain;
+  background: #0B1220;
+}
+.game-summary {
+  scroll-margin-top: 90px;   /* 自动滚动时留出顶部导航的高度 */
+}
+
+/* ── 开场页（前情提要） ── */
+.game-intro { max-width: 760px; margin: 24px auto 48px; }
+.intro-kicker { font-size: 12px; letter-spacing: .14em; color: #6B7683; margin: 0 0 10px; text-transform: uppercase; }
+.intro-title { font-size: 34px; line-height: 1.25; margin: 0 0 22px; color: #101418; }
+.intro-body { font-size: 15.5px; line-height: 1.95; color: #2B3441; }
+.intro-body p { margin: 0 0 15px; }
+.intro-body ul { margin: 0 0 16px; padding-left: 20px; }
+.intro-body li { margin: 0 0 7px; }
+.intro-body strong { color: #0F6CBF; font-weight: 700; }
+.intro-hint { font-size: 13.5px; color: #7A8592; padding: 12px 16px; background: #F2F5F9; border-radius: 8px; }
+.intro-start {
+  margin: 26px 0 0; padding: 15px 52px; font-size: 17px; font-weight: 700;
+  color: #FFFFFF; background: #101418; border: 0; border-radius: 999px; cursor: pointer;
+  transition: transform .16s ease, background .16s ease;
+}
+.intro-start:hover { transform: translateY(-2px); background: #0F6CBF; }
+.game-intro[hidden] { display: none; }
+
+/* ── 开场页期间藏掉游戏本体 ── */
+.page.game.is-intro .game-hud,
+.page.game.is-intro .game-title,
+.page.game.is-intro .stage,
+.page.game.is-intro #summary,
+.page.game.is-intro #prompt,
+.page.game.is-intro #choices {
+  display: none !important;
+}
+
+/* ── 得分反馈 toast ── */
+.score-toast {
+  position: fixed; left: 50%; top: 12%; transform: translate(-50%, -8px);
+  padding: 14px 30px; border-radius: 999px;
+  font-size: 26px; font-weight: 800; letter-spacing: .02em;
+  color: #FFFFFF; background: #101418;
+  box-shadow: 0 14px 40px rgba(16, 20, 24, .28);
+  opacity: 0; pointer-events: none; z-index: 99;
+  transition: opacity .22s ease, transform .22s ease;
+}
+.score-toast.is-up   { background: #0B7A3B; }
+.score-toast.is-mid  { background: #0F6CBF; }
+.score-toast.is-down { background: #C21E63; }
+.score-toast.is-on   { opacity: 1; transform: translate(-50%, 0); }
+.score-toast small   { display: block; font-size: 13px; font-weight: 500; opacity: .82; margin-top: 3px; }
+
+/* ── 影游道具栏 ── */
+.game-bag { display: flex; align-items: center; gap: 12px; margin: 0 0 16px; }
+.bag-item {
+  display: flex; align-items: center; gap: 10px; padding: 9px 18px 9px 12px;
+  border-radius: 999px; border: 2px solid var(--ink, #101418); background: #fff;
+  cursor: pointer; font-family: inherit; box-shadow: 3px 3px 0 var(--ink, #101418);
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.bag-item:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--ink, #101418); }
+.bag-item svg { width: 22px; height: 20px; fill: #C21E63; }
+.bag-item span { font-size: 14px; font-weight: 800; color: #101418; }
+.bag-item small { font-size: 12px; color: #6B7683; }
+.bag-item:disabled { opacity: .38; cursor: not-allowed; box-shadow: none; transform: none; }
+.bag-used { font-size: 12.5px; color: #6B7683; }
+.game-bag[hidden] { display: none; }
+
+/* ── 结局回顾 ── */
+.review { max-width: 780px; margin: 40px auto 0; }
+.rv-title { font-size: 22px; margin: 0 0 10px; color: #101418; }
+.rv-stat { font-size: 14px; color: #6B7683; margin: 0 0 24px; }
+.rv-stat strong { color: #101418; font-size: 17px; }
+.rv-item {
+  padding: 16px 20px; border-radius: 14px; background: #fff; margin: 0 0 12px;
+  border-left: 3px solid #E3E8EE; border: 1px solid #EDF1F5; border-left-width: 3px;
+}
+.rv-item.ok  { border-left-color: #0B7A3B; }
+.rv-item.mid { border-left-color: #0F6CBF; }
+.rv-item.bad { border-left-color: #C21E63; }
+.rv-no { font-size: 12.5px; color: #6B7683; margin: 0 0 8px; display: flex; align-items: center; gap: 10px; }
+.rv-tag { margin-left: auto; padding: 2px 10px; border-radius: 999px; font-size: 11.5px; font-weight: 700; }
+.rv-item.ok  .rv-tag { background: #E9F7EF; color: #0B7A3B; }
+.rv-item.mid .rv-tag { background: #EAF1FA; color: #0F6CBF; }
+.rv-item.bad .rv-tag { background: #FCEBF2; color: #C21E63; }
+.rv-q { font-size: 14px; color: #2B3441; margin: 0 0 8px; font-weight: 600; }
+.rv-a { font-size: 14px; color: #101418; margin: 0 0 10px; line-height: 1.6; }
+.rv-e { font-size: 13.5px; color: #4A5563; margin: 0; line-height: 1.8; padding-top: 10px; border-top: 1px dashed #EDF1F5; }
+.rv-e b { color: #0F6CBF; margin-right: 6px; }
+.review[hidden] { display: none; }
+
+/* ── 答题计时器 ── */
+.game-timer {
+  padding: 6px 16px; border-radius: 999px; font-size: 14px; font-weight: 800;
+  background: #F2F5F9; color: #2B3441; border: 2px solid transparent;
+  font-variant-numeric: tabular-nums; transition: all .2s ease;
+}
+.game-timer.warn  { background: #FFF4E5; color: #B25E00; border-color: #F0C07A; }
+.game-timer.danger{ background: #FCEBF2; color: #C21E63; border-color: #E9A7C4; animation: tpulse .9s ease-in-out infinite; }
+.game-timer[hidden] { display: none; }
+@keyframes tpulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.06)} }
+.rv-time { font-size: 12.5px; color: #8A93A0; margin-left: 6px; }
+
+/* 操作按钮条：始终在视频上方，不被挤走 */
+.game-actions {
+  display: flex; gap: 10px; flex-wrap: wrap;
+  margin: 0 0 14px;
+}
+
+/* 操作按钮条：视频下方 */
+.game-actions { display: flex; gap: 10px; flex-wrap: wrap; margin: 14px 0 0; }
+.game-actions[hidden] { display: none; }
+.game-foot { margin: 22px 0 0; }
+.game-foot[hidden] { display: none; }

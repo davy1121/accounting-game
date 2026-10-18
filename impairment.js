@@ -25,7 +25,7 @@ const SECTIONS = [
     name: '案例视频',
     sum: '用一家真实公司走一遍完整的减值测试',
     tone: '#9B8AFF', toneDark: '#6B57D6',
-    href: 'case.mp4',
+    href: 'https://fzx123-d5gtatf8of1d5f936-1497636274.tcloudbaseapp.com/案例视频.mp4',
     slot: { z: 46,  ry: 0,  rx: -2, ty: 14,  fd: -2.4 },
   },
   {

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>资产减值 · 互动影游</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%23FF3D8B'/%3E%3Ctext x='50' y='55' font-size='64' font-weight='700' text-anchor='middle' dominant-baseline='central' fill='%230B0D10'%3E影%3C/text%3E%3C/svg%3E" />
+<meta name="description" content="互动影游《星核互娱减值风暴》：你是特聘资产评估师，在年末决算前测出 1945 万减值。八处判断，三个结局。" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="星核互娱减值风暴｜资产减值互动影游" />
+<meta property="og:description" content="互动影游《星核互娱减值风暴》：你是特聘资产评估师，在年末决算前测出 1945 万减值。八处判断，三个结局。" />
+<meta property="og:locale" content="zh_CN" />
+<link rel="stylesheet" href="styles.css?v=20261019t" />
+<script>
+(function () {
+  try {
+    var raw = sessionStorage.getItem('mmw-transition');
+    if (!raw) return;
+    sessionStorage.removeItem('mmw-transition');
+    var d = JSON.parse(raw) || {};
+    var root = document.documentElement;
+    if (d.fill) root.style.setProperty('--pt-fill', d.fill);
+    if (d.rect) {
+      root.style.setProperty('--pt-tx', d.rect.x + 'px');
+      root.style.setProperty('--pt-ty', d.rect.y + 'px');
+      root.style.setProperty('--pt-sx', (d.rect.w / window.innerWidth).toFixed(5));
+      root.style.setProperty('--pt-sy', (d.rect.h / window.innerHeight).toFixed(5));
+      root.setAttribute('data-pt-shrink', '1');
+    }
+    root.classList.add('is-entering');
+  } catch (e) {}
+})();
+</script>
+</head>
+<body>
+  <div class="pt-curtain" aria-hidden="true"></div>
+
+  <main class="page game is-intro" id="gameRoot">
+    <a class="back" href="资产减值.html">← 返回资产减值</a>
+    <section class="game-intro" id="intro">
+
+      <p class="intro-kicker">互动影游 · 前情提要</p>
+
+      <h2 class="intro-title">星核互娱减值风暴</h2>
+
+      <div class="intro-body">
+
+        <p>你是一名执业资产评估师。今晚 23:47，你被叫到星核互娱的会议室。</p>
+
+        <p>这家公司正在准备年报、同时启动融资。董事长王总希望"别让利润出问题"；财务总监林菲私下告诉你，公司内部的风险比报表上大得多——多款游戏流水暴跌、渲染设备闲置、收购来的工作室连年亏损，审计已经提示存在<strong>资产减值风险</strong>。</p>
+
+        <p>接下来几天，你要独立判断四项资产到底值多少钱：</p>
+
+        <ul>
+
+          <li><strong>手游版权</strong>——停更半年，流水归零，找不到买家</li>
+
+          <li><strong>渲染设备</strong>——闲置率 60%，能开机但没订单</li>
+
+          <li><strong>并购商誉</strong>——1800 万，来自那个连年亏损的工作室</li>
+
+          <li><strong>一款新游戏</strong>——唯一还在正常盈利的资产</li>
+
+        </ul>
+
+        <p>你要在<strong>准则</strong>、<strong>老板的压力</strong>和<strong>自己的职业底线</strong>之间做十几个选择。每一步都会改变最后的报告，也决定你拿到哪一个结局。</p>
+
+        <p class="intro-hint">共 13 幕、10 个关键抉择，约 5 分钟。选错了会被退回，但只有第一次的选择计分。</p>
+
+      </div>
+
+      <button class="intro-start round" id="startGame" type="button">开始游戏</button>
+
+    </section>
+
+
+    <div class="game-hud">
+      <span class="badge round" id="chapter">第一章</span>
+      <span class="game-step" id="step"></span>
+      <span class="game-timer round" id="timer" hidden></span>
+        <span class="game-score round" id="score" aria-live="polite">得分 0</span>
+    </div>
+    <div class="game-bag" id="bag" hidden>
+
+      <button class="bag-item" id="bagBtn" type="button">
+
+        <svg viewBox="0 0 100 90" aria-hidden="true"><path d="M50 86S6 58 6 30C6 14 18 4 32 4c8 0 14 4 18 10 4-6 10-10 18-10 14 0 26 10 26 26 0 28-44 56-44 56z"/></svg>
+
+        <span id="bagName">致知之心</span>
+
+        <small id="bagDesc">排除一个错误选项</small>
+
+      </button>
+
+      <span class="bag-used" id="bagUsed" hidden>已用掉</span>
+
+    </div>
+
+
+
+    <h1 class="game-title round" id="title"></h1>
+
+    <div class="stage" id="stage">
+      <video id="video" playsinline preload="auto" hidden></video>
+      <div class="stage-text" id="stageText" hidden></div>
+      <button class="stage-play round" id="playBtn" type="button" hidden>▶ 播放</button>
+    </div>
+    <div class="game-actions" id="actions">
+      <button class="mini round" id="backBtn" type="button">← 返回上一步</button>
+      <button class="mini round" id="restartTop" type="button">重新开始</button>
+      <button class="mini round" id="skipBtn" type="button" hidden>跳过本段</button>
+    </div>
+        <p class="game-summary" id="summary" hidden></p>
+
+    <p class="game-prompt" id="prompt"></p>
+
+    <div class="choices" id="choices" role="group" aria-label="请选择"></div>
+
+    <div class="game-foot">
+      <button class="mini round" id="restartBtn" type="button" hidden>重来一次</button>
+    </div>
+    <div class="score-toast" id="scoreToast" aria-live="polite"></div>
+          <div class="review" id="review" hidden></div>
+
+</main>
+
+  <script src="common.js?v=20261019t"></script>
+  <script src="成绩.js?v=20261019s"></script>
+<script src="影游.js?v=20261019t"></script>
+  <script src="影游引擎.js?v=20261019t"></script>
+</body>
+</html>

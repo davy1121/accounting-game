@@ -427,6 +427,9 @@
     const shown = Math.max(0, totalElapsed - cut);
     const tmin = Math.floor(shown / 60), tsec = (shown % 60).toFixed(1);
     const tstr = tmin > 0 ? `${tmin} 分 ${tsec} 秒` : `${tsec} 秒`;
+    const sxzS = Number(localStorage.getItem('sxzScore') || 0);
+    const ttl = total + sxzS;
+    html += `<p class="rv-stat">三贤者 ${sxzS} 分　·　影游 ${total} 分　·　<b>合计 ${ttl} 分</b></p>`;
     html += `<p class="rv-stat">共 ${list.length} 个抉择　·　最优 ${right} 个　·　本局得分 <strong>${total > 0 ? '+' : ''}${total}</strong>　·　思考总用时 <strong>${tstr}</strong>${cut ? `（已减 ${cut} 秒）` : ''}</p>`;
     list.forEach((x, i) => {
       const cls = x.score >= 10 ? 'ok' : x.score > 0 ? 'mid' : 'bad';
@@ -450,15 +453,19 @@
     submitted = true;
     const cut = window.__totalCut || 0;
     const secs = Math.max(0, totalElapsed - cut);
+    // ★ 加上三贤者的分（0~20）
+    const sxzScore = Number(localStorage.getItem('sxzScore') || 0);
+    const totalScore = score + sxzScore;
+    window.__finalScore = totalScore;
 
-    SCORE_DB.submitResult(sid, score, secs).then((r) => {
+    SCORE_DB.submitResult(sid, totalScore, secs).then((r) => {
       if (!r || r.ok) { console.log('成绩已提交', sid, score, secs.toFixed(1)); return; }
       // ★ 提交失败：把成绩摊在页面上，让学生截图发给老师
       const box = document.createElement('div');
       box.className = 'submit-fail';
       box.innerHTML = '<b>成绩没能上传（网络问题）</b>' +
         '<p>请把下面这一行截图，发给老师登记：</p>' +
-        '<code>' + sid + '　' + score + ' 分　' + secs.toFixed(1) + ' 秒</code>' +
+        '<code>' + sid + '　' + totalScore + ' 分　' + secs.toFixed(1) + ' 秒</code>' +
         '<p class="sf-tip">下次用同一个名字打开本页，会自动重试上传。</p>';
       const host = document.querySelector('#review') || document.body;
       host.parentNode.insertBefore(box, host.nextSibling);

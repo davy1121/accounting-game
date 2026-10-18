@@ -203,6 +203,8 @@
   function finish() {
     const allRight = pathScore.every(Boolean);
     store.save(cur.id, allRight ? cur.heart : null);
+    // ★ 三贤者的分数也带进影游
+    try { localStorage.setItem('sxzScore', String(score)); localStorage.setItem('sxzTotal', '20'); } catch (e) {}
     elQuiz.hidden = true; elResult.hidden = false;
     $('rKicker').textContent = '试炼结束';
     $('rTitle').textContent = allRight ? `通过 ${cur.name}` : `未通过 ${cur.name}`;

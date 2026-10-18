@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>会计准则妙妙屋 · 教师端 · 排名</title>
+<link rel="stylesheet" href="三贤者.css?v=20261019s" />
+<style>
+  body { padding: 34px 22px 70px; }
+  .wrap { max-width: 1000px; }
+  .head { display: flex; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; }
+  .head h1 { margin: 0; }
+  .head .acts { margin-left: auto; display: flex; gap: 10px; flex-wrap: wrap; }
+  .btn {
+    padding: 11px 22px; border-radius: 999px; border: 2px solid #101418; background: #fff;
+    font-size: 14px; font-weight: 700; font-family: inherit; cursor: pointer; text-decoration: none;
+    color: #101418; box-shadow: 3px 3px 0 #101418; transition: transform .15s, box-shadow .15s;
+  }
+  .btn:hover { transform: translate(-1px,-1px); box-shadow: 4px 4px 0 #101418; }
+  .btn.primary { background: #101418; color: #fff; }
+  .stat { font-size: 14px; color: #6B7683; margin: 0 0 24px; }
+  .stat b { color: #101418; font-size: 17px; }
+  table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 14.5px; }
+  thead th {
+    text-align: left; font-size: 12px; letter-spacing: .08em; color: #6B7683; font-weight: 700;
+    padding: 0 14px 10px; border-bottom: 2px solid #101418;
+  }
+  thead th.num, tbody td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  tbody td { padding: 13px 14px; border-bottom: 1px solid #EDF1F5; }
+  tbody tr:hover td { background: #FAFBFC; }
+  .rank { font-weight: 800; }
+  .rank-1 { color: #B8860B; }
+  .rank-2 { color: #8A8F98; }
+  .rank-3 { color: #A0622D; }
+  .sid { font-weight: 700; letter-spacing: .03em; }
+  .empty { padding: 50px 0; text-align: center; color: #6B7683; font-size: 15px; }
+  .err { color: #C21E63; font-size: 14px; padding: 16px; background: #FCEBF2; border-radius: 12px; }
+  .top3 td { background: #FFFDF5; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <div>
+      <p class="kicker">教师端</p>
+      <h1>成绩排名</h1>
+    </div>
+    <div class="acts">
+      <button class="btn" id="refresh" type="button">刷新</button>
+      <button class="btn primary" id="csv" type="button">导出 CSV</button>
+    </div>
+  </div>
+  <p class="stat" id="stat">加载中…</p>
+  <div id="box"><p class="empty">正在读取…</p></div>
+</div>
+<script src="成绩.js?v=20261019s"></script>
+<script>
+(function () {
+  let rows = [];
+  const box = document.getElementById('box'), stat = document.getElementById('stat');
+
+  async function load() {
+    box.innerHTML = '<p class="empty">正在读取…</p>';
+    stat.textContent = '加载中…';
+    try {
+      rows = await SCORE_DB.fetchRanking();
+      if (!rows.length) {
+        box.innerHTML = '<p class="empty">还没有学生提交成绩。<br/>把学生端的二维码发给他们（输姓名或学号）。</p>';
+        stat.textContent = '共 0 人提交';
+        return;
+      }
+      const best = rows[0].score;
+      const avg = (rows.reduce((a, x) => a + x.score, 0) / rows.length).toFixed(1);
+      const fastest = Math.min(...rows.map(x => x.seconds));
+      stat.innerHTML = `共 <b>${rows.length}</b> 人提交　·　最高分 <b>${best}</b>　·　平均分 <b>${avg}</b>　·　最快用时 <b>${SCORE_DB.fmtTime(fastest)}</b>`;
+
+      box.innerHTML = `<table>
+        <thead><tr>
+          <th style="width:70px">名次</th>
+          <th>姓名 / 学号</th>
+          <th class="num" style="width:110px">分数</th>
+          <th class="num" style="width:150px">答题用时</th>
+          <th class="num" style="width:180px">提交时间</th>
+        </tr></thead>
+        <tbody>${rows.map(x => {
+          const cls = x.rank <= 3 ? ' rank-' + x.rank : '';
+          const top = x.rank <= 3 ? ' class="top3"' : '';
+          const t = new Date(x.created_at);
+          const ts = `${t.getMonth()+1}/${t.getDate()} ${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}`;
+          return `<tr${top}>
+            <td class="rank${cls}">${x.rank}</td>
+            <td class="sid">${x.student_id}</td>
+            <td class="num">${x.score > 0 ? '+' : ''}${x.score}</td>
+            <td class="num">${SCORE_DB.fmtTime(x.seconds)}</td>
+            <td class="num" style="color:#6B7683">${ts}</td>
+          </tr>`;
+        }).join('')}</tbody>
+      </table>`;
+    } catch (e) {
+      box.innerHTML = '<p class="err">读取失败：' + e.message + '</p>';
+      stat.textContent = '';
+    }
+  }
+
+  document.getElementById('refresh').onclick = load;
+
+  document.getElementById('csv').onclick = () => {
+    if (!rows.length) { alert('还没有数据'); return; }
+    const head = '名次,学号,分数,答题用时(秒),提交时间\n';
+    const body = rows.map(x =>
+      [x.rank, x.student_id, x.score, x.seconds, x.created_at].join(',')).join('\n');
+    const blob = new Blob(['\ufeff' + head + body], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = '成绩排名_' + new Date().toISOString().slice(0, 10) + '.csv';
+    a.click();
+  };
+
+  load();
+  setInterval(load, 15000);   // 每 15 秒自动刷新
+})();
+</script>
+</body>
+</html>

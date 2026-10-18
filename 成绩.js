@@ -14,15 +14,63 @@ window.SCORE_DB = (function () {
     'Content-Type': 'application/json',
   };
 
-  /* 学生：提交一次成绩 */
+  /* 学生：提交一次成绩（失败自动存本地，下次打开重试） */
   async function submitResult(studentId, score, seconds) {
-    const r = await fetch(`${URL}/rest/v1/${TABLE}`, {
-      method: 'POST',
-      headers: { ...H, 'Prefer': 'return=minimal' },
-      body: JSON.stringify({ student_id: String(studentId).trim(), score: Number(score), seconds: Number(seconds.toFixed(1)) }),
-    });
-    if (!r.ok) throw new Error('提交失败 ' + r.status + ' ' + (await r.text()).slice(0, 120));
-    return true;
+    const rec = {
+      student_id: String(studentId).trim(),
+      score: Number(score),
+      seconds: Number(seconds.toFixed(1)),
+      at: Date.now(),
+    };
+    try {
+      const r = await fetch(`${URL}/rest/v1/${TABLE}`, {
+        method: 'POST',
+        headers: { ...H, 'Prefer': 'return=minimal' },
+        body: JSON.stringify({ student_id: rec.student_id, score: rec.score, seconds: rec.seconds }),
+      });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      removePending(rec);
+      return { ok: true };
+    } catch (e) {
+      addPending(rec);
+      return { ok: false, error: String(e.message || e), code: 'NET' };
+    }
+  }
+
+  /* ── 待提交队列（网断了也不丢成绩） ── */
+  function pendingKey() { return 'scorePending'; }
+  function loadPending() {
+    try { return JSON.parse(localStorage.getItem(pendingKey()) || '[]'); } catch (e) { return []; }
+  }
+  function savePending(list) {
+    try { localStorage.setItem(pendingKey(), JSON.stringify(list)); } catch (e) {}
+  }
+  function addPending(rec) {
+    const list = loadPending().filter((x) => x.student_id !== rec.student_id);
+    list.push(rec); savePending(list);
+  }
+  function removePending(rec) {
+    savePending(loadPending().filter((x) => x.student_id !== rec.student_id));
+  }
+  function hasPending() { return loadPending().length > 0; }
+  function pendingText() {
+    return loadPending().map((x) => `姓名:${x.student_id}  分数:${x.score}  用时:${x.seconds}秒`).join('\n');
+  }
+  /* 重试所有待提交（页面打开时自动调） */
+  async function flushPending() {
+    const list = loadPending(); if (!list.length) return { done: 0, left: 0 };
+    let done = 0;
+    for (const rec of list) {
+      try {
+        const r = await fetch(`${URL}/rest/v1/${TABLE}`, {
+          method: 'POST',
+          headers: { ...H, 'Prefer': 'return=minimal' },
+          body: JSON.stringify({ student_id: rec.student_id, score: rec.score, seconds: rec.seconds }),
+        });
+        if (r.ok) { removePending(rec); done++; }
+      } catch (e) { break; }
+    }
+    return { done, left: loadPending().length };
   }
 
   /* 教师：取排名（分数降序，同分用时升序） */
@@ -54,5 +102,6 @@ window.SCORE_DB = (function () {
     return (m > 0 ? m + ' 分 ' : '') + r + ' 秒';
   }
 
-  return { submitResult, fetchRanking, fmtTime, URL, KEY };
+  return { submitResult, fetchRanking, fmtTime, URL, KEY,
+           loadPending, hasPending, pendingText, flushPending };
 })();

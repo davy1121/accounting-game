@@ -450,9 +450,20 @@
     submitted = true;
     const cut = window.__totalCut || 0;
     const secs = Math.max(0, totalElapsed - cut);
-    SCORE_DB.submitResult(sid, score, secs)
-      .then(() => console.log('成绩已提交', sid, score, secs.toFixed(1)))
-      .catch((e) => console.warn('成绩提交失败', e));
+
+    SCORE_DB.submitResult(sid, score, secs).then((r) => {
+      if (!r || r.ok) { console.log('成绩已提交', sid, score, secs.toFixed(1)); return; }
+      // ★ 提交失败：把成绩摊在页面上，让学生截图发给老师
+      const box = document.createElement('div');
+      box.className = 'submit-fail';
+      box.innerHTML = '<b>成绩没能上传（网络问题）</b>' +
+        '<p>请把下面这一行截图，发给老师登记：</p>' +
+        '<code>' + sid + '　' + score + ' 分　' + secs.toFixed(1) + ' 秒</code>' +
+        '<p class="sf-tip">下次用同一个名字打开本页，会自动重试上传。</p>';
+      const host = document.querySelector('#review') || document.body;
+      host.parentNode.insertBefore(box, host.nextSibling);
+      console.warn('提交失败，已存本地待重试');
+    });
   }
 
   function restart() {

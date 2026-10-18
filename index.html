@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>会计准则妙妙屋</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20100%20100%27%3E%3Crect%20width%3D%27100%27%20height%3D%27100%27%20rx%3D%2724%27%20fill%3D%27%238ED000%27%2F%3E%3Ctext%20x%3D%2750%27%20y%3D%2755%27%20font-size%3D%2764%27%20font-weight%3D%27700%27%20text-anchor%3D%27middle%27%20dominant-baseline%3D%27central%27%20font-family%3D%27Yuanti%20SC%2CPingFang%20SC%2CHiragino%20Sans%20GB%2Csans-serif%27%20fill%3D%27%230B0D10%27%3E%E5%A6%99%3C%2Ftext%3E%3C%2Fsvg%3E" />
+<meta name="description" content="七条企业会计准则的整理笔记。目前「资产减值」已整理完，含 59 页研究生课程课件、案例视频和互动影游。" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="会计准则妙妙屋｜七条企业会计准则的整理笔记" />
+<meta property="og:description" content="七条企业会计准则的整理笔记。目前「资产减值」已整理完，含 59 页研究生课程课件、案例视频和互动影游。" />
+<meta property="og:locale" content="zh_CN" />
+<link rel="stylesheet" href="styles.css?v=20261019t" />
+<script>
+/* 转场幕布：必须在首帧前决定是否铺开，否则会闪一下白屏 */
+(function () {
+  try {
+    var raw = sessionStorage.getItem('mmw-transition');
+    if (!raw) return;
+    sessionStorage.removeItem('mmw-transition');
+    var d = JSON.parse(raw) || {};
+    var root = document.documentElement;
+    if (d.fill) root.style.setProperty('--pt-fill', d.fill);
+    if (d.rect) {                       /* 返回：幕布收缩回这一格 */
+      root.style.setProperty('--pt-tx', d.rect.x + 'px');
+      root.style.setProperty('--pt-ty', d.rect.y + 'px');
+      root.style.setProperty('--pt-sx', (d.rect.w / window.innerWidth).toFixed(5));
+      root.style.setProperty('--pt-sy', (d.rect.h / window.innerHeight).toFixed(5));
+      root.setAttribute('data-pt-shrink', '1');
+    }
+    root.classList.add('is-entering');
+  } catch (e) {}
+})();
+</script>
+</head>
+<body>
+  <div class="pt-curtain" aria-hidden="true"></div>
+
+  <div class="page">
+    <header class="masthead">
+      <h1 class="round">
+        <span class="m-line">会计准则</span>
+        <span class="m-line"><span class="m-mark">妙妙屋</span></span>
+      </h1>
+    </header>
+
+    <main class="scene" id="scene" aria-label="准则列表">
+      <div class="scene-plane bento" id="plane"></div>
+    </main>
+  <p class="scene-hint" id="hint">移动鼠标看视差　·　点卡片放大，再点卡片上的按钮进入</p>
+
+    <p class="colophon">
+      七条准则里，目前整理好了「资产减值」这一条。<br />
+      其余六条点开会告诉你进度。
+    </p>
+  </div>
+
+  <!-- 遮罩放最外层：.scene 有 perspective，会成为 position:fixed 后代的包含块 -->
+  <div class="scene-veil" id="veil" hidden></div>
+
+  <script src="common.js?v=20261019t"></script>
+  <script src="app.js?v=20261019t"></script>
+</body>
+</html>

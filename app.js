@@ -31,7 +31,7 @@ const STANDARDS = [
     no: '8', name: '资产减值',
     sum: '什么时候要测减值，可收回金额怎么算',
     tone: '#FF3D8B', toneDark: '#C21E63',
-    span: 12, href: '资产减值.html',
+    span: 12, href: 'zc.html',
     inside: '里面有课件、案例视频和趣味游戏',
     slot: { z: 14,  ry: 0, rx: 0, ty: 0 },     // 唯一能进的，推到最前
   },
